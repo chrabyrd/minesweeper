@@ -2,11 +2,12 @@ require_relative 'tile'
 require_relative 'game'
 
 class Board
-  attr_reader :grid
+  attr_reader :grid, :bomb_positions
 
   def initialize
     @grid = Array.new(9) { Array.new(9) }
-
+    @bomb_positions = []
+    @bomb_neighbors = []
   end
 
   def [](pos)
@@ -20,8 +21,7 @@ class Board
   end
 
   def populate_board
-    bomb_positions = []
-    10.times { bomb_positions << [rand(10), rand(10)] }
+    10.times { @bomb_positions << [rand(10), rand(10)] }
     @grid = @grid.map.with_index do |row, idx|
       row.map.with_index do |_, i|
         bomb_positions.include?([idx, i]) ? Tile.new(true) : Tile.new(false)
@@ -38,11 +38,15 @@ class Board
     end
   end
 
+  def flag(pos)
+    @grid[pos].is_flagged = !@grid[pos].is_flagged 
+  end
+
   def reveal(pos)
-    if grid[pos].is_bomb
+    if @grid[pos].is_bomb
       game.game_over
     else
-      ####TODO
+      @grid[pos].revealed = true
     end
   end
 end
